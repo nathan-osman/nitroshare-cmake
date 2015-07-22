@@ -10,3 +10,9 @@ The entire collection can be installed by running the following commands:
     cd build
     cmake ..
     make install
+
+## Usage
+
+To include a file in a CMake project, simply use `include()`:
+
+    include(NitroShare/WindowsResourceFile)
