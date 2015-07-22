@@ -21,16 +21,25 @@
 # SOFTWARE.
 
 # Split a version (in the form "x.y.z") into its three components
-# The results will be in variables named:
-# - <_prefix>_MAJOR
-# - <_prefix>_MINOR
-# - <_prefix>_PATCH
+#
+#   SPLIT_VERSION(prefix version)
+#
+# The resulting values will be in variables named:
+# - ${_prefix}_MAJOR
+# - ${_prefix}_MINOR
+# - ${_prefix}_PATCH
 function(SPLIT_VERSION _prefix _version)
+
+    # Replace each "." with ";" so that it can be interpreted as a list
     string(REPLACE "." ";" v ${_version})
-    list(GET v 0 v_major)
-    list(GET v 1 v_minor)
-    list(GET v 2 v_patch)
-    set(${_prefix}_MAJOR ${v_major} PARENT_SCOPE)
-    set(${_prefix}_MINOR ${v_minor} PARENT_SCOPE)
-    set(${_prefix}_PATCH ${v_patch} PARENT_SCOPE)
+
+    # Obtain the components
+    list(GET v 0 vMajor)
+    list(GET v 1 vMinor)
+    list(GET v 2 vPatch)
+
+    # Set the values in the parent scope
+    set(${_prefix}_MAJOR ${vMajor} PARENT_SCOPE)
+    set(${_prefix}_MINOR ${vMinor} PARENT_SCOPE)
+    set(${_prefix}_PATCH ${vPatch} PARENT_SCOPE)
 endfunction()
