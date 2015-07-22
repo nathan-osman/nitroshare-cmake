@@ -1,4 +1,4 @@
-## NitroShare CMake Macros
+## NitroShare CMake Macros & Functions
 
 A collection of CMake macros and functions that simplify the creation of the cross-platform executables and libraries that comprise the NitroShare project.
 
@@ -13,6 +13,6 @@ The entire collection can be installed by running the following commands:
 
 ## Usage
 
-To include a file in a CMake project, simply use `include()`:
+To include a file in a CMake project, simply use `include()`. For example:
 
     include(NitroShare/WindowsResourceFile)
