@@ -4,4 +4,9 @@ A collection of CMake macros and functions that simplify the creation of the cro
 
 ### Installation
 
-[TODO]
+The entire collection can be installed by running the following commands:
+
+    mkdir build
+    cd build
+    cmake ..
+    make install
