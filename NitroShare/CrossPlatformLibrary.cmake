@@ -20,12 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+include(CMakeParseArguments)
+include(NitroShare/CMakeExportFile)
+include(NitroShare/PackageConfigFile)
+include(NitroShare/SplitVersion)
+include(NitroShare/WindowsResourceFile)
+
 # Adds standard options for installation
 #
 #   CPL_OPTIONS()
 #
-# The macro checks for "doc", "examples", and "tests" directories and if they
-# exist, the appropriate options and subdirectories are added.
+# The macro adds the options (BIN|LIB|INCLUDE)_INSTALL_DIR. The macro checks
+# for "doc", "examples", and "tests" directories and if they exist, the
+# appropriate options and subdirectories are added.
 macro(CPL_OPTIONS)
 
     # Add options to control installation directories
@@ -58,3 +65,83 @@ macro(CPL_OPTIONS)
         endif()
     endif()
 endmacro()
+
+# Create a library from the provided source files
+#
+#   CPL_LIBRARY(NAME name
+#               VERSION version
+#               SRC src1 [src2 ...])
+#
+# A directory with the same name as the target is expected to exist in the
+# current source directory containing the public header files.
+function(CPL_LIBRARY)
+
+    # Parse the arguments to the function
+    set(options )
+    set(oneValueArgs NAME VERSION)
+    set(multiValueArgs SRC)
+    cmake_parse_arguments(CPL "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # Ensure no extra arguments were passed
+    if(CPL_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "CPL_LIBRARY(): unrecognized arguments \"${CPL_UNPARSED_ARGUMENTS}\"")
+    endif()
+
+    # Ensure the required arguments were set
+    if(NOT CPL_NAME OR NOT CPL_VERSION)
+        message(FATAL_ERROR "CPL_LIBRARY(): NAME and VERSION are required arguments")
+    endif()
+
+    # Find the header files
+    file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${CPL_NAME}/*")
+
+    # Create the target
+    add_library(${CPL_NAME} ${CPL_SRC} ${HEADERS})
+
+    # Add the current source and binary directories to the list of include
+    # directories during building and add the installation path when installing
+    target_include_directories(${CPL_NAME} PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+        "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    # Split the version
+    split_version(CPL ${CPL_VERSION})
+
+    # Set the properties for the target
+    set_target_properties(${CPL_NAME} PROPERTIES
+        PUBLIC_HEADER "${HEADERS}"
+        VERSION ${CPL_VERSION}
+        SOVERSION ${CPL_MAJOR}
+    )
+
+    # Install the target's files to the appropriate directories
+    install(TARGETS ${CPL_NAME}
+        RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
+        LIBRARY DESTINATION "${LIB_INSTALL_DIR}"
+        ARCHIVE DESTINATION "${LIB_INSTALL_DIR}"
+        PUBLIC_HEADER DESTINATION "${INCLUDE_INSTALL_DIR}/${CPL_NAME}"
+    )
+
+    # Create a CMake export file
+    cmake_export_file(TARGET ${CPL_NAME}
+        VERSION ${CPL_VERSION}
+        DESTINATION "${LIB_INSTALL_DIR}/cmake/${CPL_NAME}"
+    )
+
+    # Create a pkg-config file
+    package_config_file(TARGET ${CPL_NAME}
+        VERSION ${CPL_VERSION}
+        DESTINATION "${LIB_INSTALL_DIR}/pkgconfig"
+        CFLAGS "-I${CMAKE_INSTALL_PREFIX}/${INCLUDE_INSTALL_DIR}"
+        LFLAGS "-L${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR} -l${CPL_NAME}"
+    )
+
+    # Generate a resource file on Windows
+    if(WIN32)
+        windows_resource_file(TARGET ${CPL_NAME}
+            VERSION ${CPL_VERSION}
+        )
+    endif()
+endfunction()
