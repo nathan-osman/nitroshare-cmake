@@ -26,16 +26,17 @@ include(CMakeParseArguments)
 # Generate CMake files that can be used to import the target
 #
 #   CMAKE_EXPORT_FILE(TARGET target
+#                     EXPORT export
 #                     VERSION version
 #                     DESTINATION directory)
 #
-# Both the ${target}Config.cmake and ${target}ConfigVersion.cmake files will be
-# generated and installed to the specified directory.
+# Both the ${target}Config*.cmake and ${target}ConfigVersion.cmake files will
+# be generated and installed to the specified directory.
 function(CMAKE_EXPORT_FILE)
 
     # Parse the arguments to the function
     set(options )
-    set(oneValueArgs TARGET VERSION DESTINATION)
+    set(oneValueArgs TARGET EXPORT VERSION DESTINATION)
     set(multiValueArgs )
     cmake_parse_arguments(CEF "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -45,12 +46,15 @@ function(CMAKE_EXPORT_FILE)
     endif()
 
     # Ensure the required arguments were set
-    if(NOT CEF_TARGET OR NOT CEF_VERSION OR NOT CEF_DESTINATION)
-        message(FATAL_ERROR "CMAKE_EXPORT_FILE(): TARGET, VERSION, and DESTINATION are required arguments")
+    if(NOT CEF_TARGET OR NOT CEF_EXPORT OR NOT CEF_VERSION OR NOT CEF_DESTINATION)
+        message(FATAL_ERROR "CMAKE_EXPORT_FILE(): TARGET, EXPORT, VERSION, and DESTINATION are required arguments")
     endif()
 
-    # Create the export file
-    export(TARGETS ${CEF_TARGET} FILE "${CMAKE_CURRENT_BINARY_DIR}/${CEF_TARGET}Config.cmake")
+    # Install the export file
+    install(EXPORT ${CEF_EXPORT}
+        DESTINATION "${CEF_DESTINATION}"
+        FILE ${CEF_TARGET}Config.cmake
+    )
 
     # Create the export version file
     write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/${CEF_TARGET}ConfigVersion.cmake"
@@ -58,9 +62,7 @@ function(CMAKE_EXPORT_FILE)
         COMPATIBILITY SameMajorVersion)
 
     # Install both files to the specified directory
-    install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/${CEF_TARGET}Config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/${CEF_TARGET}ConfigVersion.cmake"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CEF_TARGET}ConfigVersion.cmake"
         DESTINATION "${CEF_DESTINATION}"
     )
 endfunction()
