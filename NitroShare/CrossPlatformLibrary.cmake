@@ -117,7 +117,7 @@ function(CPL_LIBRARY)
     )
 
     # Install the target's files to the appropriate directories
-    install(TARGETS ${CPL_NAME}
+    install(TARGETS ${CPL_NAME} EXPORT ${CPL_NAME}-export
         RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
         LIBRARY DESTINATION "${LIB_INSTALL_DIR}"
         ARCHIVE DESTINATION "${LIB_INSTALL_DIR}"
@@ -126,6 +126,7 @@ function(CPL_LIBRARY)
 
     # Create a CMake export file
     cmake_export_file(TARGET ${CPL_NAME}
+        EXPORT ${CPL_NAME}-export
         VERSION ${CPL_VERSION}
         DESTINATION "${LIB_INSTALL_DIR}/cmake/${CPL_NAME}"
     )
