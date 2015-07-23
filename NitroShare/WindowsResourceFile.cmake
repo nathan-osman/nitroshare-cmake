@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 include(CMakeParseArguments)
-include(SplitVersion)
+include(NitroShare/SplitVersion)
 
 # Create an .rc file with the specified version information
 #
