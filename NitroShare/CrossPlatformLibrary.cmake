@@ -70,16 +70,17 @@ endmacro()
 #
 #   CPL_LIBRARY(NAME name
 #               VERSION version
-#               SRC src1 [src2 ...])
+#               [HEADERS hdr1 [hdr2 ...]]
+#               [SRC src1 [src2 ...]])
 #
-# A directory with the same name as the target is expected to exist in the
-# current source directory containing the public header files.
+# The symbol <name>_LIBRARY is defined, which can be used to export symbols
+# from the library.
 function(CPL_LIBRARY)
 
     # Parse the arguments to the function
     set(options )
     set(oneValueArgs NAME VERSION)
-    set(multiValueArgs SRC)
+    set(multiValueArgs HEADERS SRC)
     cmake_parse_arguments(CPL "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # Ensure no extra arguments were passed
@@ -92,11 +93,8 @@ function(CPL_LIBRARY)
         message(FATAL_ERROR "CPL_LIBRARY(): NAME and VERSION are required arguments")
     endif()
 
-    # Find the header files
-    file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${CPL_NAME}/*")
-
     # Create the target
-    add_library(${CPL_NAME} ${CPL_SRC} ${HEADERS})
+    add_library(${CPL_NAME} ${CPL_HEADERS} ${CPL_SRC})
 
     # Add the current source and binary directories to the list of include
     # directories during building and add the installation path when installing
@@ -111,7 +109,8 @@ function(CPL_LIBRARY)
 
     # Set the properties for the target
     set_target_properties(${CPL_NAME} PROPERTIES
-        PUBLIC_HEADER "${HEADERS}"
+        DEFINE_SYMBOL ${CPL_NAME}_LIBRARY
+        PUBLIC_HEADER "${CPL_HEADERS}"
         VERSION ${CPL_VERSION}
         SOVERSION ${CPL_MAJOR}
     )
