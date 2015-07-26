@@ -106,5 +106,5 @@ VS_VERSION_INFO VERSIONINFO
     # link to the static library
     set(rcTarget ${WRF_TARGET}-resource)
     add_library(${rcTarget} STATIC ${cFilename} ${rcFilename})
-    target_link_libraries(${WRF_TARGET} ${rcTarget})
+    target_link_libraries(${WRF_TARGET} PRIVATE ${rcTarget})
 endfunction()
