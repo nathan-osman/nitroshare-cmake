@@ -96,11 +96,15 @@ VS_VERSION_INFO VERSIONINFO
     # Write the file to disk
     set(rcFilename "${CMAKE_CURRENT_BINARY_DIR}/${WRF_TARGET}.rc")
     file(GENERATE OUTPUT ${rcFilename} CONTENT ${contents})
+    set_source_files_properties(${rcFilename}
+        PROPERTIES GENERATED TRUE)
 
     # Create an empty C file to work around CMake complaining that
     # CMAKE_RC_CREATE_STATIC_LIBRARY is not set
     set(cFilename "${CMAKE_CURRENT_BINARY_DIR}/${WRF_TARGET}-empty.c")
     file(GENERATE OUTPUT ${cFilename} CONTENT "")
+    set_source_files_properties(${cFilename}
+        PROPERTIES GENERATED TRUE)
 
     # Create a static library containing the resource file and have the target
     # link to the static library
