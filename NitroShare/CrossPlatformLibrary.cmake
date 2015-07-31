@@ -41,7 +41,7 @@ macro(CPL_OPTIONS)
     set(INCLUDE_INSTALL_DIR include CACHE STRING "Header installation directory")
 
     # Check for the "doc" directory
-    if(EXISTS doc)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/doc")
         option(BUILD_DOC "Build documentation" OFF)
         if(BUILD_DOC)
             add_subdirectory(doc)
@@ -49,7 +49,7 @@ macro(CPL_OPTIONS)
     endif()
 
     # Check for the "examples" directory
-    if(EXISTS examples)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples")
         option(BUILD_EXAMPLES "Build example applications" OFF)
         if(BUILD_EXAMPLES)
             add_subdirectory(examples)
@@ -57,7 +57,7 @@ macro(CPL_OPTIONS)
     endif()
 
     # Check for the "tests" directory
-    if(EXISTS tests)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests")
         option(BUILD_TESTS "Build unit tests" OFF)
         if(BUILD_TESTS)
             enable_testing()
