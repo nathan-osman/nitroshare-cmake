@@ -148,7 +148,8 @@ endfunction()
 
 # Create tests for each of the provided classes
 #
-#   CPL_TESTS(CLASSES cls1 [cls2 ...])
+#   CPL_TESTS(CLASSES cls1 [cls2 ...]
+#             [LIBRARIES lib1 [lib2 ...]])
 #
 # It is assumed that the test for each class is in a file beginning with "Test"
 # and ending with the name of the class.
@@ -156,7 +157,7 @@ function(CPL_TESTS)
 
     set(options )
     set(oneValueArgs )
-    set(multiValueArgs CLASSES)
+    set(multiValueArgs CLASSES LIBRARIES)
     cmake_parse_arguments(CPL "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # Ensure no extra arguments were passed
@@ -174,8 +175,13 @@ function(CPL_TESTS)
 
         set(name Test${CLASS})
 
-        # Create the executable and add a test for it
+        # Create the executable and add any supplied libraries
         add_executable(${name} ${name})
+        if(CPL_LIBRARIES)
+            target_link_libraries(${name} PRIVATE ${CPL_LIBRARIES})
+        endif()
+
+        # Create the test from the executable
         add_test(NAME ${name}
             COMMAND ${name}
         )
