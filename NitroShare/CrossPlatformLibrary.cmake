@@ -145,3 +145,39 @@ function(CPL_LIBRARY)
         )
     endif()
 endfunction()
+
+# Create tests for each of the provided classes
+#
+#   CPL_TESTS(CLASSES cls1 [cls2 ...])
+#
+# It is assumed that the test for each class is in a file beginning with "Test"
+# and ending with the name of the class.
+function(CPL_TESTS)
+
+    set(options )
+    set(oneValueArgs )
+    set(multiValueArgs CLASSES)
+    cmake_parse_arguments(CPL "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # Ensure no extra arguments were passed
+    if(CPL_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "CPL_TESTS(): unrecognized arguments \"${CPL_UNPARSED_ARGUMENTS}\"")
+    endif()
+
+    # Ensure the required arguments were set
+    if(NOT CPL_CLASSES)
+        message(FATAL_ERROR "CPL_TESTS(): CLASSES is a required argument")
+    endif()
+
+    # Process each of the classes
+    foreach(CLASS ${CPL_CLASSES})
+
+        set(name Test${CLASS})
+
+        # Create the executable and add a test for it
+        add_executable(${name} ${name})
+        add_test(NAME ${name}
+            COMMAND ${name}
+        )
+    endforeach()
+endfunction()
