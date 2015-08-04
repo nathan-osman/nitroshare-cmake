@@ -2,6 +2,10 @@
 
 A collection of CMake macros and functions that simplify the creation of the cross-platform executables and libraries that comprise the NitroShare project.
 
+### Requirements
+
+CMake 2.8.12+ is required to use the macros and functions.
+
 ### Installation
 
 The entire collection can be installed by running the following commands:
