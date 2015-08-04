@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 include(CMakeParseArguments)
+include(GenerateExportHeader)
 include(NitroShare/CMakeExportFile)
 include(NitroShare/PackageConfigFile)
 include(NitroShare/SplitVersion)
@@ -112,12 +113,18 @@ function(CPL_LIBRARY)
         "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
     )
 
+    # Add the export header file
+    set(exportHeader "${CMAKE_CURRENT_BINARY_DIR}/${CPL_NAME}_export.h")
+    generate_export_header(${CPL_NAME}
+        EXPORT_FILE_NAME "${exportHeader}"
+    )
+    set(CPL_HEADERS ${CPL_HEADERS} "${exportHeader}")
+
     # Split the version
     split_version(CPL ${CPL_VERSION})
 
     # Set the properties for the target
     set_target_properties(${CPL_NAME} PROPERTIES
-        DEFINE_SYMBOL ${CPL_NAME}_LIBRARY
         PUBLIC_HEADER "${CPL_HEADERS}"
         VERSION ${CPL_VERSION}
         SOVERSION ${CPL_MAJOR}
