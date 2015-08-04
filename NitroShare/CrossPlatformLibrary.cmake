@@ -93,6 +93,14 @@ function(CPL_LIBRARY)
         message(FATAL_ERROR "CPL_LIBRARY(): NAME and VERSION are required arguments")
     endif()
 
+    # If building for Windows, add the resource file
+    if(WIN32)
+        windows_resource_file(TARGET ${CPL_NAME}
+            VERSION ${CPL_VERSION}
+        )
+        set(CPL_SRC ${CPL_SRC} "${CMAKE_CURRENT_BINARY_DIR}/${CPL_NAME}.rc")
+    endif()
+
     # Create the target
     add_library(${CPL_NAME} ${CPL_HEADERS} ${CPL_SRC})
 
@@ -137,13 +145,6 @@ function(CPL_LIBRARY)
         CFLAGS "-I${CMAKE_INSTALL_PREFIX}/${INCLUDE_INSTALL_DIR}"
         LFLAGS "-L${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR} -l${CPL_NAME}"
     )
-
-    # Generate a resource file on Windows
-    if(WIN32)
-        windows_resource_file(TARGET ${CPL_NAME}
-            VERSION ${CPL_VERSION}
-        )
-    endif()
 endfunction()
 
 # Create tests for each of the provided classes

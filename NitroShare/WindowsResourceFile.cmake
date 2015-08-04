@@ -31,7 +31,8 @@ include(NitroShare/SplitVersion)
 #                         [AUTHOR author])
 #
 # A windows resource (.rc) file will be generated with the information
-# provided.
+# provided in the current binary directory. The file will be named after the
+# target with an .rc extension.
 function(WINDOWS_RESOURCE_FILE)
 
     # Parse the arguments to the function
@@ -98,17 +99,4 @@ VS_VERSION_INFO VERSIONINFO
     file(GENERATE OUTPUT ${rcFilename} CONTENT ${contents})
     set_source_files_properties(${rcFilename}
         PROPERTIES GENERATED TRUE)
-
-    # Create an empty C file to work around CMake complaining that
-    # CMAKE_RC_CREATE_STATIC_LIBRARY is not set
-    set(cFilename "${CMAKE_CURRENT_BINARY_DIR}/${WRF_TARGET}-empty.c")
-    file(GENERATE OUTPUT ${cFilename} CONTENT "")
-    set_source_files_properties(${cFilename}
-        PROPERTIES GENERATED TRUE)
-
-    # Create a static library containing the resource file and have the target
-    # link to the static library
-    set(rcTarget ${WRF_TARGET}-resource)
-    add_library(${rcTarget} STATIC ${cFilename} ${rcFilename})
-    target_link_libraries(${WRF_TARGET} PRIVATE ${rcTarget})
 endfunction()
