@@ -157,15 +157,17 @@ endfunction()
 # Create tests for each of the provided classes
 #
 #   CPL_TESTS(CLASSES cls1 [cls2 ...]
-#             [LIBRARIES lib1 [lib2 ...]])
+#             [LIBRARIES lib1 [lib2 ...]]
+#             [TARGETS tgt1 [tg2 ...]])
 #
 # It is assumed that the test for each class is in a file beginning with "Test"
-# and ending with the name of the class.
+# and ending with the name of the class. If targets are provided, they are
+# copied to the test directory after being built.
 function(CPL_TESTS)
 
     set(options )
     set(oneValueArgs )
-    set(multiValueArgs CLASSES LIBRARIES)
+    set(multiValueArgs CLASSES LIBRARIES TARGETS)
     cmake_parse_arguments(CPL "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # Ensure no extra arguments were passed
@@ -179,9 +181,9 @@ function(CPL_TESTS)
     endif()
 
     # Process each of the classes
-    foreach(CLASS ${CPL_CLASSES})
+    foreach(class ${CPL_CLASSES})
 
-        set(name Test${CLASS})
+        set(name Test${class})
 
         # Create the executable and add any supplied libraries
         add_executable(${name} ${name})
@@ -194,4 +196,15 @@ function(CPL_TESTS)
             COMMAND ${name}
         )
     endforeach()
+
+    # For a shared build on Windows, if any targets were provided, copy them to
+    # the tests directory
+    if(WIN32 AND BUILD_SHARED_LIBS)
+        foreach(target ${CPL_TARGETS})
+            add_custom_target(${target}-copy ALL
+                ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${target}>" "${CMAKE_CURRENT_BINARY_DIR}"
+                DEPENDS ${target}
+            )
+        endforeach()
+    endif()
 endfunction()
